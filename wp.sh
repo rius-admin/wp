@@ -50,17 +50,15 @@ function _TestLogin() {
 # Print Banner
 echo -e "\x1b[1;96m
 
-                   __        ______                            
-                  \ \      / /  _ \                           
-                   \ \ /\ / /| |_) |                          
-                    \ V  V / |  __/                           
-  ____  ____  _   _ _\_/\_/__|_|_____ ___  ____   ____ _____  
+       __        ______                            
+       \ \      / /  _ \                           
+        \ \ /\ / /| |_) |                          
+         \ V  V / |  __/                           
+  ____  __\__/\/__| |____  ___ _____ ___  ____   ____ _____  
  | __ )|  _ \| | | |_   _| ____|  ___/ _ \|  _ \ / ___| ____| 
  |  _ \| |_) | | | | | | |  _| | |_ | | | | |_) | |   |  _|   
  | |_) |  _ <| |_| | | | | |___|  _|| |_| |  _ <| |___| |___  
- |____/|_| \_\\___/ |_|_| |_____|_|   \___/|_| \_\\____|_____| 
-
-
+ |____/|_| \_\\___/  |_|_| |_____|_|   \___/|_| \_\\\____|_____| 
 
 ? = https://target.id/wp-login.php
 ? = pass.txt
@@ -122,10 +120,11 @@ fi
 
 # Tambahkan opsi untuk berhenti atau melanjutkan
 while true; do
-    echo -ne "\n[?] Apakah ingin melanjutkan brute-force lagi? (t/y) > "
+    echo -ne "\n[?] Apakah ingin melanjutkan brute-force lagi? (Y/T) > "
     read pilihan
     case $pilihan in
         [Yy])
+            echo "Menjalankan ulang program..."
             exec "$0"
             ;;
         [Tt])
@@ -133,7 +132,7 @@ while true; do
             exit
             ;;
         *)
-            echo "Pilihan tidak valid. Masukkan 'y' untuk lanjut atau 't' untuk keluar."
+            echo "   "
             ;;
     esac
 done
