@@ -1,3 +1,5 @@
+#!/bin/bash
+
 curl_timeout=20
 multithread_limit=10
 
