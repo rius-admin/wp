@@ -1,3 +1,5 @@
+( wp v2 sama dengan wp.py tetapi lebih cangih dan lebih update ) 
+      
       [ INSTALL ]
 
 # pkg update
